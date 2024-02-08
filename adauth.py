@@ -27,7 +27,17 @@ class ADAuth:
         # Establish a connection to the server
         self.server = Server(self.server_address, get_info=ALL)
 
-    def authenticate_user(self, username, password) -> bool:
+    def authenticate_user(self, username, password) -> int:
+        """
+        Authenticate a user against the Active Directory, return
+        0 if authentication fails,
+        1 if authentication is successful,
+        2 if authentication and group membership are successful.
+        :param username: string
+        :param password: string
+        :return: int (0, 1, 2)
+        """
+        result = 0
         auth = False
         group = False
         auth_and_group = False
@@ -46,7 +56,6 @@ class ADAuth:
                 # Extract and return the groups from the search result
                 if conn.entries:
                     mygroup = self.group_name.lower()
-                    groups = []
                     for entry in conn.entries[0].memberOf.values:
                         oneGroup = entry.split(',')[0].split('=')[1].lower()
                         if oneGroup == mygroup:
@@ -56,14 +65,12 @@ class ADAuth:
                 if auth and group:
                     auth_and_group = True
         except Exception as e:
-            return False
-        return auth_and_group
+            auth = False
 
+        if auth:
+            result = 1
 
-# # Example usage:
-# ## ad_auth = ActiveDirectoryAuth(server_address='192.168.2.27', domain_name='wwd', search_base='DC=wwd,DC=local')
-# ad_auth = ActiveDirectoryAuth()
-# result = ad_auth.authenticate_user('jcarter', 'Zebras are b and w')
-# print(f"Authenticated {result}")
-#
-#
+        if auth_and_group:
+            result = 2
+
+        return result

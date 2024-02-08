@@ -26,32 +26,37 @@ class AuthDetails(BaseModel):
     username: str
     password: str
 
+
 @app.post("/auth")
 async def auth(auth_details: AuthDetails):
-    adauth = ADAuth()
-    authenticated = adauth.authenticate_user(auth_details.username, auth_details.password)
-    # Implement your authentication logic here
-    # For example, check if the username and password are correct
-    if authenticated:
-        return {"message": "success"}
-    else:
-        return {"message": "fail"}
+    return auth_group(auth_details, group='')
 
 
 @app.post("/auth/{group}")
 async def auth_group(auth_details: AuthDetails, group: str):
-    adauth = ADAuth(groupname=group)
-    authenticated = adauth.authenticate_user(auth_details.username, auth_details.password)
-    # Implement your authentication logic here
-    # For example, check if the username and password are correct
-    if authenticated:
-        return {"message": "success"}
+    if group <= '':
+        adauth = ADAuth()
     else:
-        return {"message": "fail"}
+        adauth = ADAuth(groupname=group)
+    authenticated = adauth.authenticate_user(auth_details.username, auth_details.password)
+
+    if authenticated == 0:
+        data = {"message": "fail"}
+        result = status_code = status.HTTP_401_UNAUTHORIZED
+
+    if authenticated == 1:
+        data = {"message": "user authenticated, group not found"}
+        result = status_code = status.HTTP_206_PARTIAL_CONTENT
+
+    if authenticated == 2:
+        data = {"message": "success"}
+        result = status.HTTP_200_OK
+
+    return JSONResponse(status_code=result, content=data)
 
 
 @app.get("/")
 async def auth_get():
     # Implement your authentication logic here
     # For example, check if the username and password are correct
-    return {"message": ""}
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"message": ""})
