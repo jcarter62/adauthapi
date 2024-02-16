@@ -38,6 +38,10 @@ async def auth_group(auth_details: AuthDetails, group: str):
         adauth = ADAuth()
     else:
         adauth = ADAuth(groupname=group)
+
+    if config('DEBUG','False') == 'True':
+        print(f"Authenticating user: {auth_details.username}, ({auth_details.password}) with group: {group}")
+
     authenticated = adauth.authenticate_user(auth_details.username, auth_details.password)
 
     if authenticated == 0:

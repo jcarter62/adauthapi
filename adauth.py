@@ -42,6 +42,16 @@ class ADAuth:
         group = False
         auth_and_group = False
         try:
+            if '@' in username:
+                parts = username.split('@')
+                if parts[1] == 'wwd.ca.gov':
+                    username = parts[0]
+
+            if '\\' in username:
+                parts = username.split('\\')
+                if parts[0] == 'wwd':
+                    username = parts[1]
+
             # Formulate the user's DN (Distinguished Name)
             user_dn = f"{self.domain_name}\\{username}"
             # Establish a connection using the user's credentials
