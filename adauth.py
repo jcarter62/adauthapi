@@ -54,8 +54,9 @@ class ADAuth:
 
             # Formulate the user's DN (Distinguished Name)
             user_dn = f"{self.domain_name}\\{username}"
+            # user_dn = f"{username}@wwd.local"
             # Establish a connection using the user's credentials
-            with Connection(self.server, user=user_dn, password=password, authentication=NTLM, auto_bind=True) as conn:
+            with Connection(self.server, user=user_dn, password=password, authentication='NTLM', auto_bind=True) as conn:
                 # If connection is established, authentication is successful
                 auth = True
                 # Retrieve user's group memberships

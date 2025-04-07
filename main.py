@@ -19,7 +19,7 @@ async def check_hosts(request: Request, call_next):
         response = await call_next(request)
         return response
     else:
-        data = {"message": "Host not allowed"}
+        data = {"message": "Host not allowed - " + client_host}
         return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content=data)
 
 class AuthDetails(BaseModel):
