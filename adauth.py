@@ -1,3 +1,8 @@
+from Cryptodome.Hash import MD4
+import hashlib
+
+hashlib.md4 = lambda: MD4.new()
+
 from ldap3 import Server, Connection, ALL, NTLM, SUBTREE
 from decouple import config
 
