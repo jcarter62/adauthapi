@@ -14,6 +14,8 @@ class ADAuth:
         else:
             self.server_address = server_address
 
+        self.server_address = 'ldap://' + self.server_address
+
         if domain_name is None:
             self.domain_name = config('DOMAIN_NAME')
         else:
@@ -30,7 +32,7 @@ class ADAuth:
             self.group_name = groupname
 
         # Establish a connection to the server
-        self.server = Server(self.server_address, get_info=ALL)
+        self.server = Server(self.server_address, get_info=None)
 
     def authenticate_user(self, username, password) -> int:
         """
@@ -61,7 +63,10 @@ class ADAuth:
             user_dn = f"{self.domain_name}\\{username}"
             # user_dn = f"{username}@wwd.local"
             # Establish a connection using the user's credentials
-            with Connection(self.server, user=user_dn, password=password, authentication='NTLM', auto_bind=True) as conn:
+            conn = Connection(self.server, user=user_dn, password=password, authentication='NTLM', auto_bind=False)
+            if not conn.bind():
+                print(f"[LDAP ERROR] bind failed: {conn.result}")
+            else:
                 # If connection is established, authentication is successful
                 auth = True
                 # Retrieve user's group memberships
@@ -81,6 +86,7 @@ class ADAuth:
                 if auth and group:
                     auth_and_group = True
         except Exception as e:
+            print(f"[LDAP ERROR] Exception: {e}")
             auth = False
 
         if auth:
